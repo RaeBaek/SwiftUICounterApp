@@ -75,7 +75,7 @@ final class CounterStore: ObservableObject {
     }
 
     func decrement() {
-        let next = count + step
+        let next = count - step
         if next < minValue {
             count = wrapAround ? maxValue : minValue
         } else {

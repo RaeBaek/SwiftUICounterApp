@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct SwiftUICounterAppApp: App {
+    @StateObject private var store = CounterStore()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environmentObject(store)
         }
     }
 }
