@@ -8,17 +8,33 @@
 import SwiftUI
 
 struct ContentView: View {
+//    @EnvironmentObject var store: CounterStore
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        VStack(spacing: 20) {
+            Text("카운터")
+                .font(.largeTitle).bold()
+
+            Text("랜덤")
+                .font(.system(size: 72, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .padding(.vertical, 8)
+
+            ProgressView(value: progress)
+                .padding(.horizontal)
+
         }
         .padding()
+    }
+
+    private var progress: Double {
+        guard store.maxValue > store.minValue else { return 1.0 }
+        return Double(store.count - store.minValue) / Double(store.maxValue - store.minValue)
     }
 }
 
 #Preview {
-    ContentView()
+    NavigationStack { ContentView() }
+        .environmentObject(CounterStore())
+
 }
