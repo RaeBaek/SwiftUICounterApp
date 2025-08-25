@@ -25,5 +25,5 @@ struct RootView: View {
 
 #Preview {
     RootView()
-        .environmentObject(CounterStore())
+        .environmentObject(CounterViewModel(service: LocalCounterService()))
 }

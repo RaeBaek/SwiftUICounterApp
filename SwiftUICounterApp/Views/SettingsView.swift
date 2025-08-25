@@ -8,24 +8,49 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject var store: CounterStore
+    @EnvironmentObject var viewModel: CounterViewModel
+    private let valueBounds: ClosedRange<Int> = -1_000_000...1_000_000
 
     var body: some View {
         Form {
             Section(header: Text("범위")) {
-                Stepper("최소값: \(store.minValue)", value: $store.minValue, in: -10000...store.maxValue)
-                Stepper("최대값: \(store.maxValue)", value: $store.maxValue, in: store.minValue...10000)
-                Button("현재 값을 최소값으로 설정") { store.minValue = store.count }
-                Button("현재 값을 최대값으로 설정") { store.maxValue = store.count }
+                Stepper(
+                    "최소값: \(viewModel.minValue)",
+                    value: $viewModel.minValue,
+                    in: valueBounds.lowerBound...min(
+                        max(
+                            viewModel.maxValue,
+                            viewModel.minValue
+                        ),
+                        valueBounds.upperBound
+                    )
+                )
+                Stepper(
+                    "최대값: \(viewModel.maxValue)",
+                    value: $viewModel.maxValue,
+                    in: max(
+                        min(
+                            viewModel.minValue,
+                            viewModel.maxValue
+                        ),
+                        valueBounds.lowerBound
+                    )...valueBounds.upperBound
+                )
+                Button("현재 값을 최소값으로 설정") { viewModel.minValue = viewModel.count }
+                Button("현재 값을 최대값으로 설정") { viewModel.maxValue = viewModel.count }
             }
 
             Section(header: Text("증가/감소 폭")) {
-                Stepper("step: \(store.step)", value: $store.step, in: 1...max(1, (store.maxValue - store.minValue)))
+                Stepper(
+                    "step: \(viewModel.step)",
+                    value: $viewModel.step,
+                    in: 1...max(1, (viewModel.maxValue - viewModel.minValue))
+                )
             }
 
             Section(header: Text("경계 동작")) {
-                Toggle("경계에서 순환(wrap around)", isOn: $store.wrapAround)
-                if !store.wrapAround {
+                Toggle("경계에서 순환(wrap around)", isOn: $viewModel.wrapAround)
+                if !viewModel.wrapAround {
                     Text("최소/최대에서 더 이동하려고 하면 값이 고정됩니다.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
@@ -38,11 +63,11 @@ struct SettingsView: View {
 
             Section {
                 Button(role: .destructive) {
-                    store.count = store.minValue
-                    store.step = 1
-                    store.minValue = 0
-                    store.maxValue = 10
-                    store.wrapAround = false
+                    viewModel.count = viewModel.minValue
+                    viewModel.step = 1
+                    viewModel.minValue = 0
+                    viewModel.maxValue = 10
+                    viewModel.wrapAround = false
                 } label: {
                     Text("설정 초기화")
                 }
@@ -52,7 +77,8 @@ struct SettingsView: View {
     }
 }
 
+
 #Preview {
     NavigationStack { SettingsView() }
-        .environmentObject(CounterStore())
+        .environmentObject(CounterViewModel(service: LocalCounterService()))
 }
